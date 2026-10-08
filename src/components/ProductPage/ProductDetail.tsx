@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import type { ColorOption, Product } from './ProductCard'
 
 type ProductDetailProps = {
@@ -14,9 +15,9 @@ export default function ProductDetail({
 }: ProductDetailProps) {
   return (
     <section className="product-detail" aria-labelledby="product-title">
-      <a className="product-back-link" href="/#collection">
+      <Link className="product-back-link" to="/#collection">
         <span aria-hidden="true">←</span> Back to collection
-      </a>
+      </Link>
       <div className="product-detail-content">
         <div
           className="product-detail-image"

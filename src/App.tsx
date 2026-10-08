@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
-import ProductCard, { type ColorOption, type Product } from './components/ProductCard'
-import ProductDetail from './components/ProductDetail'
+import { Link, Outlet, Route, Routes } from 'react-router-dom'
+import type { Product } from './components/ProductPage/ProductCard'
+import FaqPage from './components/FaqPage'
+import HomePage from './components/HomePage'
+import ProductPage from './components/ProductPage/ProductPage'
 
 const products: Product[] = [
   {
@@ -53,97 +55,18 @@ const products: Product[] = [
   },
 ]
 
-export default function App() {
-  const productRoute = window.location.pathname.match(/^\/products\/([^/]+)\/?$/)
-  const productId = productRoute?.[1]
-  const selectedProduct = products.find((product) => product.id === productId)
-  const isNotFound = window.location.pathname !== '/' && !selectedProduct
-  const [selectedDetailColor, setSelectedDetailColor] = useState<ColorOption | undefined>(() => {
-    if (!selectedProduct) {
-      return undefined
-    }
-
-    const colorName = new URLSearchParams(window.location.search).get('color')
-    return (
-      selectedProduct.colors.find((color) => color.name === colorName) ?? selectedProduct.colors[0]
-    )
-  })
-
-  function selectDetailColor(color: ColorOption) {
-    setSelectedDetailColor(color)
-    const url = new URL(window.location.href)
-    url.searchParams.set('color', color.name)
-    window.history.replaceState(null, '', url)
-  }
-
+function StoreLayout() {
   return (
     <div className="storefront">
       <header className="site-header">
-        <a className="wordmark" href="/#top" aria-label="aicommerce home">
+        <Link className="wordmark" to="/#top" aria-label="aicommerce home">
           ai<span>commerce</span>
-        </a>
-        <p className="header-note">Good things, thoughtfully picked.</p>
-        <a className="header-link" href="/#collection">
-          Explore collection <span aria-hidden="true">↘</span>
-        </a>
+        </Link>
+        <Link className="header-link" to="/faq">
+          FAQ
+        </Link>
       </header>
-
-      {selectedProduct ? (
-        <main id="top">
-          <ProductDetail
-            product={selectedProduct}
-            selectedColor={selectedDetailColor ?? selectedProduct.colors[0]}
-            onColorChange={selectDetailColor}
-          />
-        </main>
-      ) : isNotFound ? (
-        <main id="top" className="product-not-found">
-          <p className="eyebrow">PRODUCT NOT FOUND</p>
-          <h1>This pick isn’t here.</h1>
-          <a className="product-back-link" href="/#collection">
-            <span aria-hidden="true">←</span> Back to collection
-          </a>
-        </main>
-      ) : (
-        <main id="top">
-          <section className="intro" aria-labelledby="page-title">
-            <p className="eyebrow">
-              <span /> THE EVERYDAY EDIT · NO. 01
-            </p>
-            <h1 id="page-title">
-              A little more
-              <br />
-              <em>you</em> in every day.
-            </h1>
-            <p className="intro-copy">
-              Useful things with a point of view.
-              <br />
-              Pick your favorite shade.
-            </p>
-            <div className="intro-stamp" aria-hidden="true">
-              MADE FOR
-              <br />
-              YOUR EVERYDAY <span>✳</span>
-            </div>
-          </section>
-
-          <section className="collection" id="collection" aria-labelledby="collection-title">
-            <div className="collection-heading">
-              <div>
-                <p className="eyebrow">THE SHORTLIST</p>
-                <h2 id="collection-title">Good picks, no guesswork.</h2>
-              </div>
-              <span className="item-count">{String(products.length).padStart(2, '0')} OBJECTS</span>
-            </div>
-            <div className="product-grid">
-              {products.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          </section>
-        </main>
-      )}
-
+      <Outlet />
       <footer className="site-footer">
         <span className="wordmark wordmark-small">
           ai<span>commerce</span>
@@ -152,5 +75,30 @@ export default function App() {
         <span>THE EVERYDAY EDIT · 2026</span>
       </footer>
     </div>
+  )
+}
+
+function NotFoundPage() {
+  return (
+    <main id="top" className="product-not-found">
+      <p className="eyebrow">PAGE NOT FOUND</p>
+      <h1>This page isn’t here.</h1>
+      <Link className="product-back-link" to="/">
+        <span aria-hidden="true">←</span> Back to home
+      </Link>
+    </main>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<StoreLayout />}>
+        <Route index element={<HomePage products={products} />} />
+        <Route path="faq" element={<FaqPage />} />
+        <Route path="products/:productId" element={<ProductPage products={products} />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   )
 }

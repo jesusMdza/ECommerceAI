@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 
 export type ColorOption = {
   name: string
@@ -41,13 +42,13 @@ export default function ProductCard({ product, index }: ProductCardProps) {
           <div>
             <p className="product-description">{product.description}</p>
             <h2>
-              <a
+              <Link
                 className="product-link"
-                href={`/products/${product.id}?color=${encodeURIComponent(selectedColor.name)}`}
+                to={`/products/${product.id}?color=${encodeURIComponent(selectedColor.name)}`}
                 aria-label={`View ${product.name}`}
               >
                 {product.name}
-              </a>
+              </Link>
             </h2>
           </div>
           <p className="product-price">${product.price}</p>
