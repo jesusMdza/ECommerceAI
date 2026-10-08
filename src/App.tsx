@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProductCard, { type ColorOption, type Product } from './components/ProductCard'
 import ProductDetail from './components/ProductDetail'
 
@@ -15,7 +15,7 @@ const products: Product[] = [
       { name: 'Ink', value: '#303a36' },
     ],
   },
-  { 
+  {
     id: 'f724cf53943e49e5bfe098afb4e171fe',
     name: 'Pocket camera',
     description: 'Keep the good bits',
@@ -53,37 +53,47 @@ const products: Product[] = [
   },
 ]
 
-const initialSelectedColors = Object.fromEntries(
-  products.map((product) => [product.id, product.colors[0]]),
-) as Record<string, ColorOption>
-
 export default function App() {
   const productRoute = window.location.pathname.match(/^\/products\/([^/]+)\/?$/)
   const productId = productRoute?.[1]
   const selectedProduct = products.find((product) => product.id === productId)
   const isNotFound = window.location.pathname !== '/' && !selectedProduct
-  const [selectedColors, setSelectedColors] = useState<Record<string, ColorOption>>(
-    initialSelectedColors,
-  )
+  const [selectedDetailColor, setSelectedDetailColor] = useState<ColorOption | undefined>(() => {
+    if (!selectedProduct) {
+      return undefined
+    }
 
-  function selectColor(productId: string, color: ColorOption) {
-    setSelectedColors((current) => ({ ...current, [productId]: color }))
+    const colorName = new URLSearchParams(window.location.search).get('color')
+    return (
+      selectedProduct.colors.find((color) => color.name === colorName) ?? selectedProduct.colors[0]
+    )
+  })
+
+  function selectDetailColor(color: ColorOption) {
+    setSelectedDetailColor(color)
+    const url = new URL(window.location.href)
+    url.searchParams.set('color', color.name)
+    window.history.replaceState(null, '', url)
   }
 
   return (
     <div className="storefront">
       <header className="site-header">
-        <a className="wordmark" href="/#top" aria-label="aicommerce home">ai<span>commerce</span></a>
+        <a className="wordmark" href="/#top" aria-label="aicommerce home">
+          ai<span>commerce</span>
+        </a>
         <p className="header-note">Good things, thoughtfully picked.</p>
-        <a className="header-link" href="/#collection">Explore collection <span aria-hidden="true">↘</span></a>
+        <a className="header-link" href="/#collection">
+          Explore collection <span aria-hidden="true">↘</span>
+        </a>
       </header>
 
       {selectedProduct ? (
         <main id="top">
           <ProductDetail
             product={selectedProduct}
-            selectedColor={selectedColors[selectedProduct.id]}
-            onColorChange={(color) => selectColor(selectedProduct.id, color)}
+            selectedColor={selectedDetailColor ?? selectedProduct.colors[0]}
+            onColorChange={selectDetailColor}
           />
         </main>
       ) : isNotFound ? (
@@ -97,10 +107,24 @@ export default function App() {
       ) : (
         <main id="top">
           <section className="intro" aria-labelledby="page-title">
-            <p className="eyebrow"><span /> THE EVERYDAY EDIT · NO. 01</p>
-            <h1 id="page-title">A little more<br /><em>you</em> in every day.</h1>
-            <p className="intro-copy">Useful things with a point of view.<br />Pick your favorite shade.</p>
-            <div className="intro-stamp" aria-hidden="true">MADE FOR<br />YOUR EVERYDAY <span>✳</span></div>
+            <p className="eyebrow">
+              <span /> THE EVERYDAY EDIT · NO. 01
+            </p>
+            <h1 id="page-title">
+              A little more
+              <br />
+              <em>you</em> in every day.
+            </h1>
+            <p className="intro-copy">
+              Useful things with a point of view.
+              <br />
+              Pick your favorite shade.
+            </p>
+            <div className="intro-stamp" aria-hidden="true">
+              MADE FOR
+              <br />
+              YOUR EVERYDAY <span>✳</span>
+            </div>
           </section>
 
           <section className="collection" id="collection" aria-labelledby="collection-title">
@@ -113,13 +137,7 @@ export default function App() {
             </div>
             <div className="product-grid">
               {products.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  selectedColor={selectedColors[product.id]}
-                  onColorChange={(color) => selectColor(product.id, color)}
-                  index={index}
-                />
+                <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
           </section>
@@ -127,7 +145,9 @@ export default function App() {
       )}
 
       <footer className="site-footer">
-        <span className="wordmark wordmark-small">ai<span>commerce</span></span>
+        <span className="wordmark wordmark-small">
+          ai<span>commerce</span>
+        </span>
         <p>Less scrolling. Better living.</p>
         <span>THE EVERYDAY EDIT · 2026</span>
       </footer>

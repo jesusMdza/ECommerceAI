@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 
 export type ColorOption = {
   name: string
@@ -16,17 +16,12 @@ export type Product = {
 
 type ProductCardProps = {
   product: Product
-  selectedColor: ColorOption
-  onColorChange: (color: ColorOption) => void
   index: number
 }
 
-export default function ProductCard({
-  product,
-  selectedColor,
-  onColorChange,
-  index,
-}: ProductCardProps) {
+export default function ProductCard({ product, index }: ProductCardProps) {
+  const [selectedColor, setSelectedColor] = useState(product.colors[0])
+
   return (
     <article className="product-card" style={{ '--card-index': index } as CSSProperties}>
       <div
@@ -48,7 +43,7 @@ export default function ProductCard({
             <h2>
               <a
                 className="product-link"
-                href={`/products/${product.id}`}
+                href={`/products/${product.id}?color=${encodeURIComponent(selectedColor.name)}`}
                 aria-label={`View ${product.name}`}
               >
                 {product.name}
@@ -70,7 +65,7 @@ export default function ProductCard({
                 type="button"
                 aria-label={`Select ${color.name} for ${product.name}`}
                 aria-pressed={selectedColor.name === color.name}
-                onClick={() => onColorChange(color)}
+                onClick={() => setSelectedColor(color)}
               />
             ))}
           </div>
