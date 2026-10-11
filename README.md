@@ -1,18 +1,40 @@
 # aicommerce
 
-A responsive React + TypeScript storefront built with Vite. Product cards include selectable color swatches; selecting a swatch updates the product image tint and selected color label.
+This repository contains a React + TypeScript storefront in `frontend/` and an
+Express + TypeScript API in `backend/`.
 
-## Run locally
+## Requirements
 
-Install Node.js, then run:
+Install Node.js and npm.
+
+## Install
 
 ```sh
 npm install
+```
+
+## Run locally
+
+Start the storefront:
+
+```sh
 npm run dev
 ```
 
-Create a production build with `npm run build`. Product photography and the optional display fonts load from external image and font hosts.
+Start the API in another terminal:
 
-Run `npm run typecheck` to check the TypeScript sources without building.
+```sh
+npm run backend:dev
+```
 
-Run `npm run format` to format the project with Prettier, or `npm run format:check` to check formatting without changing files.
+The API listens on port `3000` by default (override with `PORT`) and returns
+`Welcome to the aicommerce api.` as plain text from `GET /`.
+
+## Build and type-check
+
+```sh
+npm run build
+npm run typecheck
+```
+
+Start the compiled API with `npm run backend:start`.
